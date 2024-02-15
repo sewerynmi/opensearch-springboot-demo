@@ -10,3 +10,12 @@ The purpose of this project is to create simple API to interact with the OpenSea
 ## Postman collection
 
 Attached in the file `OPENSEARCH SpringBoot API Demo.postman_collection.json`
+
+## Metadata payload
+`
+{
+"category":"MyCategory",
+"id": 211,
+"indexData":"{  \"firstName\": \"Keith\", \"lastName\": \"McCallister\", \"answer\": \"I have a puppy\" }"
+}
+`

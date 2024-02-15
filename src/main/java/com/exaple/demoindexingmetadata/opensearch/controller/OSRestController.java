@@ -9,6 +9,7 @@ import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.util.List;
 public class OSRestController {
 
     private final OpenSearchClient openSearchClient;
+    @Value("${demoap.openserch.index}")
     private  String index = "demo-index";
 
     public OSRestController(OpenSearchClient openSearchClient) {

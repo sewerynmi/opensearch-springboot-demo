@@ -13,13 +13,21 @@ import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.transport.OpenSearchTransport;
 import org.opensearch.client.transport.Transport;
 import org.opensearch.client.transport.rest_client.RestClientTransport;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OSConfig {
 
-    private String host = "test-domain.eu-west-1.opensearch.localhost.localstack.cloud";
+    @Value("${demoapp.openserch.domain}")
+    private String host;
+
+    @Value("${demoapp.openserch.user}")
+    private String openSearchUser;
+
+    @Value("${demoapp.openserch.password}")
+    private String openSearchPassword;
 
     CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
     RestClient restClient ;
@@ -29,7 +37,7 @@ public class OSConfig {
     OpenSearchClient openSearchClient () {
 
         credentialsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials("admin", "really-secure-password123"));
+                new UsernamePasswordCredentials(openSearchUser, openSearchPassword));
 
         HttpHost httpHost = new HttpHost(host, 4566, "http");
         restClient = RestClient.builder(httpHost)

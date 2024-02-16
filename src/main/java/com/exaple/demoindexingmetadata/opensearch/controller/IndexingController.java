@@ -29,9 +29,8 @@ import java.util.List;
 @Validated
 public class IndexingController {
 
-    /* I am aware that file could be refactored and may lines could be moved
-    to separate methods, but I wanted to keep it like that for the purpose of learning
-    what is going on step by step.
+    /* I am aware that file could be refactored and many lines could be moved
+    to separate methods, but I wanted to keep it like that for the purpose of learning.
      */
 
     private final OpenSearchClient openSearchClient;

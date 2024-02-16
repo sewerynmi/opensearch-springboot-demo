@@ -1,4 +1,4 @@
-package com.exaple.demoindexingmetadata.opensearch.domain;
+package com.exaple.demoindexingmetadata.opensearch.components;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileMetadata {
+public class Metadata {
 
 
     @JsonProperty("category")

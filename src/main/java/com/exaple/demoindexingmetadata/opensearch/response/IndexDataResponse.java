@@ -1,6 +1,6 @@
 package com.exaple.demoindexingmetadata.opensearch.response;
 
-import com.exaple.demoindexingmetadata.opensearch.domain.IndexData;
+import com.exaple.demoindexingmetadata.opensearch.domain.IndexDataModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +12,6 @@ import lombok.Setter;
 public class IndexDataResponse {
 
     private String id;
-    private IndexData indexData;
+    private IndexDataModel indexData;
 
 }

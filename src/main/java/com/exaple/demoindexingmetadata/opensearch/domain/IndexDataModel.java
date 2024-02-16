@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class IndexData {
+public class IndexDataModel {
 
     private String firstName;
     private String lastName;

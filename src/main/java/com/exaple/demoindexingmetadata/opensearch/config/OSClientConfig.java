@@ -20,6 +20,12 @@ public class OSClientConfig {
     @Value("${demoapp.openserch.domain}")
     private String host;
 
+    @Value("${demoapp.openserch.scheme}")
+    private String scheme;
+
+    @Value("${demoapp.openserch.port}")
+    private int port;
+
     @Value("${demoapp.openserch.user}")
     private String openSearchUser;
 
@@ -36,7 +42,7 @@ public class OSClientConfig {
         credentialsProvider.setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials(openSearchUser, openSearchPassword));
 
-        HttpHost httpHost = new HttpHost(host, 4566, "http");
+        HttpHost httpHost = new HttpHost(host, port, scheme);
         restClient = RestClient.builder(httpHost)
                 .setHttpClientConfigCallback(httpClientBuilder ->
                         httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)).build();

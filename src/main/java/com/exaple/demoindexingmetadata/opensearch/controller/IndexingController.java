@@ -4,6 +4,7 @@ import com.exaple.demoindexingmetadata.opensearch.components.Metadata;
 import com.exaple.demoindexingmetadata.opensearch.components.MetadataConverter;
 import com.exaple.demoindexingmetadata.opensearch.domain.IndexDataModel;
 import com.exaple.demoindexingmetadata.opensearch.response.IndexDataResponse;
+import com.exaple.demoindexingmetadata.opensearch.service.IndexingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.Result;
@@ -33,39 +34,20 @@ public class IndexingController {
     to separate methods, but I wanted to keep it like that for the purpose of learning.
      */
 
-    private final OpenSearchClient openSearchClient;
-
+    private final IndexingService indexingService;
     @Value("${demoap.openserch.index}")
     private  String index;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataConverter.class);
 
-    public IndexingController(OpenSearchClient openSearchClient) {
-        this.openSearchClient = openSearchClient;
+    public IndexingController(IndexingService indexingService) {
+        this.indexingService = indexingService;
     }
 
-
-    /**
-     * This method allows to index data passed a json body
-     * Example json body:
-     * {
-     *     "firstName": "John",
-     *     "lastName": "Doe",
-     *     "answer": "I love cats and dogs."
-     * }
-     */
     @PostMapping("/{documentId}")
-    public ResponseEntity<Result> addSomeData(@PathVariable String documentId,
+    public ResponseEntity<Result> addDataFromJsonBody(@PathVariable String documentId,
                                               @RequestBody IndexDataModel dataForIndex) throws IOException {
-
-        IndexDataModel indexDataModel = new IndexDataModel(dataForIndex.getFirstName(),
-                dataForIndex.getLastName(), dataForIndex.getAnswer());
-
-        IndexRequest<IndexDataModel> indexRequest = new IndexRequest.Builder<IndexDataModel>()
-                .index(index).id(documentId)
-                .document(indexDataModel).build();
-        IndexResponse indexResponse = openSearchClient.index(indexRequest);
+        IndexResponse indexResponse = indexingService.indexJsonBodyData(index, documentId, dataForIndex);
 
         LOGGER.info("Data to be indexed: {}", dataForIndex);
         LOGGER.info("Index Response Status: {}", indexResponse.result().toString());
@@ -74,24 +56,9 @@ public class IndexingController {
         return new ResponseEntity<>(indexResponse.result(), HttpStatus.OK );
     }
 
-    /**
-     * This method allows to index data passed as a form-data json value
-     * Example json for `metadata` field:
-     * {
-     *   "category":"MyCategory",
-     *   "id": 2223,
-     *   "indexData":"{  \"firstName\": \"John\", \"lastName\": \"Doe\", \"answer\": \"I love cats and dogs\" }"
-     * }
-     */
     @PostMapping
     public ResponseEntity<Result> addDataFromMetadata(@RequestParam("metadata") Metadata metadata) throws IOException {
-
-        IndexDataModel indexDataModel = objectMapper.readValue(metadata.getIndexData(), IndexDataModel.class);
-
-        IndexRequest<IndexDataModel> indexRequest = new IndexRequest.Builder<IndexDataModel>()
-                .index(index).id(String.valueOf(metadata.getId()))
-                .document(indexDataModel).build();
-        IndexResponse indexResponse = openSearchClient.index(indexRequest);
+        IndexResponse indexResponse = indexingService.indexMetadataJson(index, metadata);
 
         LOGGER.info("Data to be indexed: {}", metadata);
         LOGGER.info("Index Response Status: {}", indexResponse.result().toString());
@@ -100,30 +67,15 @@ public class IndexingController {
         return new ResponseEntity<>(indexResponse.result(), HttpStatus.OK );
     }
 
-    /**
-     * This endpoint allows to search index for a given value [`q`] in a given field.
-     * Example URI part:
-     *      /search?field=answer&q=fish
-     *      /search?field=firstName&q=john
-     */
+
     @GetMapping("/search")
-    public ResponseEntity<List<IndexDataResponse>> searchRequest(@RequestParam("field") String field,
+    public ResponseEntity<List<IndexDataResponse>> matchPhrasePrefixSearch(@RequestParam("field") String field,
                                                                  @RequestParam("q") String searchPhrase) throws IOException {
-
-        MatchPhrasePrefixQuery matchPhrasePrefixQuery = new MatchPhrasePrefixQuery.Builder()
-                .field(field)
-                .query(searchPhrase)
-                .build();
-
-        SearchRequest searchRequest = new SearchRequest.Builder()
-                .index(index)
-                .query(q -> q.matchPhrasePrefix(matchPhrasePrefixQuery)).build();
-
-        SearchResponse<IndexDataModel> response = openSearchClient.search(searchRequest, IndexDataModel.class);
+        SearchResponse<IndexDataModel> response = indexingService.matchPhrasePrefixQuerySearch(index, field, searchPhrase);
 
         List<IndexDataResponse> responses = new ArrayList<>();
 
-        LOGGER.info("Searching for a phrase/word: {}", searchPhrase);
+        LOGGER.info("Searching for a phrase: {}", searchPhrase);
         LOGGER.info("Hits count for phrase `{}` : {}", searchPhrase, response.hits().hits().size() );
 
         for (int i = 0; i< response.hits().hits().size(); i++) {
